@@ -33,12 +33,7 @@ public class UserController {
         User userSave;
 
         try {
-            if (userService.existsById(userDTO.getId())){
-                return new ResponseEntity<>(MessageResponse.builder()
-                        .message("The user entered already exists")
-                        .build()
-                        ,HttpStatus.CONFLICT);
-            }if (userService.existsByEmail(userDTO.getEmail())){
+            if (userService.existsByEmail(userDTO.getEmail())){
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The email entered already exists")
                         .build()
@@ -90,9 +85,17 @@ public class UserController {
         User userSave;
 
         try {
-
-
-            if (userService.existsByEmail(userDTO.getEmail())){
+            if (userDTO.getId() == null){
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("User id parameter is not found")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            } if (userService.existsById(userDTO.getId())){
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("The user entered already exists")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            } if (userService.existsByEmail(userDTO.getEmail())){
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The email entered already exists")
                         .build()
