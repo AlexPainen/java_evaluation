@@ -6,4 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.UUID;
 
 public interface UserDAO extends CrudRepository<User, UUID> {
+    boolean existsByEmail(String email);
 }

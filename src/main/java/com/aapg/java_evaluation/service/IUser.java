@@ -9,5 +9,6 @@ public interface IUser {
     User save(UserDTO user);
     User findById(UUID id);
     boolean existsById(UUID id);
+    boolean existsByEmail(String email);
     void delete(User user);
 }

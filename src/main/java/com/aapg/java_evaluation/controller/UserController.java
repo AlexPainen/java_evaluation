@@ -4,14 +4,17 @@ import com.aapg.java_evaluation.model.dto.UserDTO;
 import com.aapg.java_evaluation.model.entity.User;
 import com.aapg.java_evaluation.model.payload.MessageResponse;
 import com.aapg.java_evaluation.service.IUser;
+import com.aapg.java_evaluation.util.Config;
 import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -19,73 +22,55 @@ public class UserController {
 
     @Autowired
     private IUser userService;
+    @Autowired
+    private Config config;
 
-    @PostMapping("user")
+    @PostMapping(value = "user",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestBody UserDTO userDTO){
 
-        User userSave = null;
-        Date date = new Date();
+        User userSave;
 
         try {
-            userSave = userService.save(userDTO);
-            return new ResponseEntity<>(MessageResponse.builder()
-                    //.message("Saved")
-                    .object(UserDTO.builder()
-                            .id(userSave.getId())
-                            .name(userSave.getName())
-                            .email(userSave.getEmail())
-                            .password(userSave.getPassword())
-                            .created(userSave.getCreated())
-                            .modified(userSave.getModified())
-                            .lasLogin(userSave.getLasLogin())
-                            .jwt(userSave.getJwt())
-                            .isActive(userSave.isActive())
-                            .phones(userSave.getPhones())
-                            .build())
-                    .build()
-            ,HttpStatus.CREATED);
-        } catch (DataException dataException) {
-            return new ResponseEntity<>(
-                    MessageResponse.builder()
-                            .message(dataException.getMessage())
-                            .object(null)
-                            .build()
-                    , HttpStatus.METHOD_NOT_ALLOWED
-            );
-        }
-    }
-
-    @PutMapping("user")
-    public ResponseEntity<?> update(@RequestBody UserDTO userDTO){
-        User userUpdate = null;
-        Date date = new Date();
-
-        try {
-            if (userService.existsById(userDTO.getId())) {
-                userUpdate = userService.save(userDTO);
+            if (userService.existsById(userDTO.getId())){
                 return new ResponseEntity<>(MessageResponse.builder()
-                        //.message("Updated")
+                        .message("The user entered already exists")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            }if (userService.existsByEmail(userDTO.getEmail())){
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("The email entered already exists")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            } if (isValidEmail(userDTO.getEmail())) {
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("The email entered does not meet the necessary parameters")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            } if (isValidPassword(userDTO.getPassword())){
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("The password entered does not meet the necessary parameters")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            }else {
+                userSave = userService.save(userDTO);
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("User saved")
                         .object(UserDTO.builder()
-                                .id(userUpdate.getId())
-                                .name(userUpdate.getName())
-                                .email(userUpdate.getEmail())
-                                .password(userUpdate.getPassword())
-                                .created(userUpdate.getCreated())
-                                .modified(userUpdate.getModified())
-                                .lasLogin(userUpdate.getLasLogin())
-                                .jwt(userUpdate.getJwt())
-                                .isActive(userUpdate.isActive())
-                                .phones(userUpdate.getPhones())
+                                .id(userSave.getId())
+                                .name(userSave.getName())
+                                .email(userSave.getEmail())
+                                .password(userSave.getPassword())
+                                .created(userSave.getCreated())
+                                .modified(userSave.getModified())
+                                .lasLogin(userSave.getLasLogin())
+                                .jwt(userSave.getJwt())
+                                .isActive(userSave.isActive())
+                                .phones(userSave.getPhones())
                                 .build())
                         .build()
                         ,HttpStatus.CREATED);
-            } else {
-                return new ResponseEntity<>(
-                        MessageResponse.builder()
-                                .message("Duplicated User id")
-                                .build()
-                        ,HttpStatus.BAD_REQUEST
-                );
             }
         } catch (DataException dataException) {
             return new ResponseEntity<>(
@@ -98,7 +83,63 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("user/{id}")
+    @PutMapping(value = "user",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> update(@RequestBody UserDTO userDTO){
+        User userSave;
+
+        try {
+
+
+            if (userService.existsByEmail(userDTO.getEmail())){
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("The email entered already exists")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            } if (isValidEmail(userDTO.getEmail())) {
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("The email entered does not meet the necessary parameters")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            } if (isValidPassword(userDTO.getPassword())){
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("The password entered does not meet the necessary parameters")
+                        .build()
+                        ,HttpStatus.CONFLICT);
+            }else {
+                userSave = userService.save(userDTO);
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("User updated")
+                        .object(UserDTO.builder()
+                                .id(userSave.getId())
+                                .name(userSave.getName())
+                                .email(userSave.getEmail())
+                                .password(userSave.getPassword())
+                                .created(userSave.getCreated())
+                                .modified(userSave.getModified())
+                                .lasLogin(userSave.getLasLogin())
+                                .jwt(userSave.getJwt())
+                                .isActive(userSave.isActive())
+                                .phones(userSave.getPhones())
+                                .build())
+                        .build()
+                        ,HttpStatus.CREATED);
+            }
+        } catch (DataException dataException) {
+            return new ResponseEntity<>(
+                    MessageResponse.builder()
+                            .message(dataException.getMessage())
+                            .object(null)
+                            .build()
+                    , HttpStatus.METHOD_NOT_ALLOWED
+            );
+        }
+    }
+
+    @DeleteMapping(value = "user/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> delete(@PathVariable UUID id){
 
         try {
@@ -116,7 +157,9 @@ public class UserController {
         }
     }
 
-    @GetMapping("user/{id}")
+    @GetMapping(value = "user/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> showById(@PathVariable UUID uuid){
 
         User user = userService.findById(uuid);
@@ -147,5 +190,19 @@ public class UserController {
                     , HttpStatus.NOT_FOUND
             );
         }
+    }
+
+    private boolean isValidEmail(String email){
+        String regx = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+        Pattern pattern = Pattern.compile(regx);
+        Matcher matcher = pattern.matcher(email);
+        return !matcher.matches();
+    }
+
+    private boolean isValidPassword(String email){
+        String regx = config.getPasswordExpression();
+        Pattern pattern = Pattern.compile(regx);
+        Matcher matcher = pattern.matcher(email);
+        return !matcher.matches();
     }
 }

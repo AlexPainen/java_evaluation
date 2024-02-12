@@ -50,6 +50,11 @@ public class UserImpl implements IUser {
         return userDAO.existsById(id);
     }
 
+    @Override
+    public boolean existsByEmail(String email) {
+        return userDAO.existsByEmail(email);
+    }
+
     @Transactional
     @Override
     public void delete(User user) {
