@@ -29,7 +29,7 @@ public class UserController {
         try {
             userSave = userService.save(userDTO);
             return new ResponseEntity<>(MessageResponse.builder()
-                    .message("Saved")
+                    //.message("Saved")
                     .object(UserDTO.builder()
                             .id(userSave.getId())
                             .name(userSave.getName())
@@ -64,7 +64,7 @@ public class UserController {
             if (userService.existsById(userDTO.getId())) {
                 userUpdate = userService.save(userDTO);
                 return new ResponseEntity<>(MessageResponse.builder()
-                        .message("Updated")
+                        //.message("Updated")
                         .object(UserDTO.builder()
                                 .id(userUpdate.getId())
                                 .name(userUpdate.getName())
@@ -123,7 +123,7 @@ public class UserController {
 
         try {
             return new ResponseEntity<>(MessageResponse.builder()
-                    .message("")
+                   // .message("")
                     .object(UserDTO.builder()
                             .id(user.getId())
                             .name(user.getName())
