@@ -28,3 +28,8 @@ logging:
 
 evaluation:
   passwordExpression: '^[0-9,$]*$'
+
+# Config OpenAPI swagger
+springdoc:
+  swagger-ui:
+    path: '/swagger-ui-custom.html'

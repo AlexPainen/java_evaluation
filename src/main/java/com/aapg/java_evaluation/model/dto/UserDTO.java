@@ -22,7 +22,7 @@ public class UserDTO implements Serializable {
     private Date created;
     private Date modified;
     private Date lasLogin;
-    private String jwt;
+    private String token;
     private boolean isActive;
     private List<Phone> phones;
 }

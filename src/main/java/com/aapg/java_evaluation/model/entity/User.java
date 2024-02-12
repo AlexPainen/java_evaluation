@@ -27,7 +27,7 @@ public class User implements Serializable {
     private Date created;
     private Date modified;
     private Date lasLogin;
-    private String jwt;
+    private String token;
     private boolean isActive;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Phone> phones;

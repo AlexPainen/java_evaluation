@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,9 +30,6 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> create(@RequestBody UserDTO userDTO){
-
-        User userSave;
-
         try {
             if (userService.existsByEmail(userDTO.getEmail())){
                 return new ResponseEntity<>(MessageResponse.builder()
@@ -49,7 +47,7 @@ public class UserController {
                         .build()
                         ,HttpStatus.CONFLICT);
             }else {
-                userSave = userService.save(userDTO);
+                User userSave = userService.save(userDTO);
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("User saved")
                         .object(UserDTO.builder()
@@ -60,12 +58,13 @@ public class UserController {
                                 .created(userSave.getCreated())
                                 .modified(userSave.getModified())
                                 .lasLogin(userSave.getLasLogin())
-                                .jwt(userSave.getJwt())
+                                .token(userSave.getToken())
                                 .isActive(userSave.isActive())
                                 .phones(userSave.getPhones())
                                 .build())
                         .build()
-                        ,HttpStatus.CREATED);
+                        ,HttpStatus.CREATED
+                );
             }
         } catch (DataException dataException) {
             return new ResponseEntity<>(
@@ -122,12 +121,13 @@ public class UserController {
                                 .created(userSave.getCreated())
                                 .modified(userSave.getModified())
                                 .lasLogin(userSave.getLasLogin())
-                                .jwt(userSave.getJwt())
+                                .token(userSave.getToken())
                                 .isActive(userSave.isActive())
                                 .phones(userSave.getPhones())
                                 .build())
                         .build()
-                        ,HttpStatus.CREATED);
+                        ,HttpStatus.CREATED
+                );
             }
         } catch (DataException dataException) {
             return new ResponseEntity<>(
@@ -153,7 +153,6 @@ public class UserController {
             return new ResponseEntity<>(
                     MessageResponse.builder()
                             .message(dataException.getMessage())
-                            .object(null)
                             .build()
                     , HttpStatus.METHOD_NOT_ALLOWED
             );
@@ -178,12 +177,42 @@ public class UserController {
                             .created(user.getCreated())
                             .modified(user.getModified())
                             .lasLogin(user.getLasLogin())
-                            .jwt(user.getJwt())
+                            .token(user.getToken())
                             .isActive(user.isActive())
                             .phones(user.getPhones())
                             .build())
                     .build()
-            , HttpStatus.OK);
+                    ,HttpStatus.OK
+            );
+        } catch (DataException dataException) {
+            return new ResponseEntity<>(
+                    MessageResponse.builder()
+                            .message(dataException.getMessage())
+                            .object(null)
+                            .build()
+                    , HttpStatus.NOT_FOUND
+            );
+        }
+    }
+
+    @GetMapping(value = "users",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> showAll(){
+        try {
+            List<User> users = userService.findAll();
+
+            if (users == null) {
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("No users found")
+                        .object(new User())
+                        .build()
+                        , HttpStatus.NOT_FOUND);
+            } else {
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .object(users)
+                        .build()
+                        , HttpStatus.OK);
+            }
         } catch (DataException dataException) {
             return new ResponseEntity<>(
                     MessageResponse.builder()

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,7 +32,7 @@ public class UserImpl implements IUser {
                 .created(date)
                 .modified(date)
                 .lasLogin(null)
-                .jwt(null)
+                .token(null)
                 .isActive(false)
                 .phones(userDTO.getPhones())
                 .build();
@@ -43,6 +44,11 @@ public class UserImpl implements IUser {
     @Override
     public User findById(UUID id) {
         return userDAO.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return (List<User>) userDAO.findAll();
     }
 
     @Override
