@@ -48,6 +48,10 @@
 - Probar los endpoint con Postman en la ruta http://localhost:8080/api/v1/user siguiendo los verbos HTTP correspondientes
 
 
+## Recursos
+Tanto el proyecto Postman como el diagrama del proyecto se encuentran en la carpeta **_resources_** del mismo (/src/main/resources/)
+
+
 ## Diagrama
 
 ![Java evaluation diagram](https://github.com/AlexPainen/java_evaluation/blob/main/src/main/resources/Class%20diagram.png "Java Evaluation Diagram")
