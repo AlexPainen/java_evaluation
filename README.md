@@ -49,7 +49,8 @@
 
 
 ## Recursos
-Tanto el proyecto Postman como el diagrama del proyecto se encuentran en la carpeta [**_resources_**](https://github.com/AlexPainen/java_evaluation/tree/main/src/main/resources) del mismo (/src/main/resources/)
+- Tanto el proyecto Postman como el diagrama del proyecto se encuentran en la carpeta [**_resources_**](https://github.com/AlexPainen/java_evaluation/tree/main/src/main/resources) del mismo (/src/main/resources/)
+- Se puede acceder a la documentacion a travez de Swagger por la URL local http://localhost:8080/swagger-ui
 
 
 ## Diagrama
