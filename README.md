@@ -50,4 +50,6 @@
 
 ## Diagrama
 
-![Java evaluation diagram](src/main/resources/Class diagram.png "Java Evaluation Diagram")
+![Java evaluation diagram](https://github.com/AlexPainen/java_evaluation/blob/main/src/main/resources/Class%20diagram.png "Java Evaluation Diagram")
+
+https://github.com/AlexPainen/java_evaluation/blob/main/src/main/resources/Class%20diagram.png
