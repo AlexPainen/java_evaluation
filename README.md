@@ -32,13 +32,22 @@
 - La clave debe seguir una expresión regular para validar que formato sea el correcto. (El valor de la expresión regular debe ser configurable)
 - El token deberá ser persistido junto con el usuario
 
+
 ## Requisitos opcionales
+
 - JWT como token
 - Pruebas unitarias
 - Swagger
 
+
 ## Puesta en marcha
+
 - Clonar el repositorio en un a carpeta local
 - Ejecutar en consola en la ruta del repositorio
     - ./gradlew clean build bootRun
 - Probar los endpoint con Postman en la ruta http://localhost:8080/api/v1/user siguiendo los verbos HTTP correspondientes
+
+
+## Diagrama
+
+![Java evaluation diagram](resources/Class diagram.png)
