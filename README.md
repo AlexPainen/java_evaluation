@@ -50,4 +50,4 @@
 
 ## Diagrama
 
-![Java evaluation diagram](resources/Class diagram.png)
+![Java evaluation diagram](src/main/resources/Class diagram.png "Java Evaluation Diagram")
