@@ -1,7 +1,6 @@
 package com.aapg.java_evaluation.service.impl;
 
 import com.aapg.java_evaluation.model.dao.UserDAO;
-import com.aapg.java_evaluation.model.dto.UserDTO;
 import com.aapg.java_evaluation.model.entity.User;
 import com.aapg.java_evaluation.service.IUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,24 +19,21 @@ public class UserImpl implements IUser {
 
     @Transactional
     @Override
-    public User save(UserDTO userDTO) {
-
+    public User save(User user) {
         Date date = new Date();
 
-        User user = User.builder()
-                .id(userDTO.getId())
-                .name(userDTO.getName())
-                .email(userDTO.getEmail())
-                .password(userDTO.getPassword())
+        return userDAO.save(User.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .password(user.getPassword())
                 .created(date)
                 .modified(date)
                 .lasLogin(null)
                 .token(null)
                 .isActive(false)
-                .phones(userDTO.getPhones())
-                .build();
-
-        return userDAO.save(user);
+                .phones(user.getPhones())
+                .build());
     }
 
     @Transactional(readOnly = true)
@@ -46,16 +42,19 @@ public class UserImpl implements IUser {
         return userDAO.findById(id).orElse(null);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<User> findAll() {
         return (List<User>) userDAO.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean existsById(UUID id) {
         return userDAO.existsById(id);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean existsByEmail(String email) {
         return userDAO.existsByEmail(email);

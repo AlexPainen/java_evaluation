@@ -1,13 +1,12 @@
 package com.aapg.java_evaluation.service;
 
-import com.aapg.java_evaluation.model.dto.UserDTO;
 import com.aapg.java_evaluation.model.entity.User;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface IUser {
-    User save(UserDTO user);
+    User save(User user);
     User findById(UUID id);
     List<User> findAll();
     boolean existsById(UUID id);

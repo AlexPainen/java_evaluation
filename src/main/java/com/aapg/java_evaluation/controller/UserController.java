@@ -1,6 +1,8 @@
 package com.aapg.java_evaluation.controller;
 
+import com.aapg.java_evaluation.model.dto.PhoneDTO;
 import com.aapg.java_evaluation.model.dto.UserDTO;
+import com.aapg.java_evaluation.model.entity.Phone;
 import com.aapg.java_evaluation.model.entity.User;
 import com.aapg.java_evaluation.model.payload.MessageResponse;
 import com.aapg.java_evaluation.service.IUser;
@@ -12,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -29,41 +32,43 @@ public class UserController {
     @PostMapping(value = "user",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> create(@RequestBody UserDTO userDTO){
+    public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
         try {
-            if (userService.existsByEmail(userDTO.getEmail())){
+            if (userService.existsByEmail(userDTO.getEmail())) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The email entered already exists")
                         .build()
-                        ,HttpStatus.CONFLICT);
-            } if (isValidEmail(userDTO.getEmail())) {
+                        , HttpStatus.CONFLICT);
+            }
+            if (isValidEmail(userDTO.getEmail())) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The email entered does not meet the necessary parameters")
                         .build()
-                        ,HttpStatus.CONFLICT);
-            } if (isValidPassword(userDTO.getPassword())){
+                        , HttpStatus.CONFLICT);
+            }
+            if (isValidPassword(userDTO.getPassword())) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The password entered does not meet the necessary parameters")
                         .build()
-                        ,HttpStatus.CONFLICT);
-            }else {
-                User userSave = userService.save(userDTO);
+                        , HttpStatus.CONFLICT);
+            } else {
+                User user = userService.save((User.builder()
+                        .name(userDTO.getName())
+                        .password(userDTO.getPassword())
+                        .email(userDTO.getEmail())
+                        .phones(phoneDTOToPhone(userDTO.getPhones())))
+                        .build());
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("User saved")
                         .object(UserDTO.builder()
-                                .id(userSave.getId())
-                                .name(userSave.getName())
-                                .email(userSave.getEmail())
-                                .password(userSave.getPassword())
-                                .created(userSave.getCreated())
-                                .modified(userSave.getModified())
-                                .lasLogin(userSave.getLasLogin())
-                                .token(userSave.getToken())
-                                .isActive(userSave.isActive())
-                                .phones(userSave.getPhones())
+                                .id(user.getId())
+                                .name(user.getName())
+                                .email(user.getEmail())
+                                .password(user.getPassword())
+                                .phones(phoneToPhoneDTO(user.getPhones()))
                                 .build())
                         .build()
-                        ,HttpStatus.CREATED
+                        , HttpStatus.CREATED
                 );
             }
         } catch (DataException dataException) {
@@ -80,27 +85,34 @@ public class UserController {
     @PutMapping(value = "user",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> update(@RequestBody UserDTO userDTO){
-        User userSave;
+    public ResponseEntity<?> update(@RequestBody UserDTO userDTO) {
 
         try {
-            if (userDTO.getId() == null){
+            if (userDTO.getId() == null) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("User id parameter is not found")
                         .build()
-                        ,HttpStatus.CONFLICT);
-            } if (isValidEmail(userDTO.getEmail())) {
+                        , HttpStatus.CONFLICT);
+            }
+            if (isValidEmail(userDTO.getEmail())) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The email entered does not meet the necessary parameters")
                         .build()
-                        ,HttpStatus.CONFLICT);
-            } if (isValidPassword(userDTO.getPassword())){
+                        , HttpStatus.CONFLICT);
+            }
+            if (isValidPassword(userDTO.getPassword())) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The password entered does not meet the necessary parameters")
                         .build()
-                        ,HttpStatus.CONFLICT);
-            }else {
-                userSave = userService.save(userDTO);
+                        , HttpStatus.CONFLICT);
+            } else {
+                User userSave = userService.save((User.builder()
+                        .id(userDTO.getId())
+                        .name(userDTO.getName())
+                        .password(userDTO.getPassword())
+                        .email(userDTO.getEmail())
+                        .phones(phoneDTOToPhone(userDTO.getPhones())))
+                        .build());
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("User updated")
                         .object(UserDTO.builder()
@@ -108,15 +120,10 @@ public class UserController {
                                 .name(userSave.getName())
                                 .email(userSave.getEmail())
                                 .password(userSave.getPassword())
-                                .created(userSave.getCreated())
-                                .modified(userSave.getModified())
-                                .lasLogin(userSave.getLasLogin())
-                                .token(userSave.getToken())
-                                .isActive(userSave.isActive())
-                                .phones(userSave.getPhones())
+                                .phones(phoneToPhoneDTO(userSave.getPhones()))
                                 .build())
                         .build()
-                        ,HttpStatus.CREATED
+                        , HttpStatus.CREATED
                 );
             }
         } catch (DataException dataException) {
@@ -125,32 +132,42 @@ public class UserController {
                             .message(dataException.getMessage())
                             .object(null)
                             .build()
-                    , HttpStatus.METHOD_NOT_ALLOWED
+                    , HttpStatus.BAD_REQUEST
             );
         }
     }
 
     @DeleteMapping(value = "user/{uuid}",
-    produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> delete(@PathVariable String uuid){
-
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> delete(@PathVariable String uuid) {
+        User user = userService.findById(UUID.fromString(uuid));
         try {
-            User user = userService.findById(UUID.fromString(uuid));
-            userService.delete(user);
-            return new ResponseEntity<>("User deleted", HttpStatus.OK);
+            if (user == null) {
+                return new ResponseEntity<>(
+                        MessageResponse.builder()
+                                .message("User not found")
+                                .build()
+                        , HttpStatus.METHOD_NOT_ALLOWED);
+            } else {
+                userService.delete(user);
+                return new ResponseEntity<>(MessageResponse.builder()
+                        .message("User deleted")
+                        .build()
+                        , HttpStatus.OK);
+            }
         } catch (DataException dataException) {
             return new ResponseEntity<>(
                     MessageResponse.builder()
                             .message(dataException.getMessage())
                             .build()
-                    , HttpStatus.METHOD_NOT_ALLOWED
+                    , HttpStatus.BAD_REQUEST
             );
         }
     }
 
-    @GetMapping(value = "user/{uuid}" ,
-    produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> showById(@PathVariable String uuid){
+    @GetMapping(value = "user/{uuid}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> showById(@PathVariable String uuid) {
         try {
             User user;
             if (userService.existsById(UUID.fromString(uuid))) {
@@ -169,15 +186,10 @@ public class UserController {
                             .name(user.getName())
                             .email(user.getEmail())
                             .password(user.getPassword())
-                            .created(user.getCreated())
-                            .modified(user.getModified())
-                            .lasLogin(user.getLasLogin())
-                            .token(user.getToken())
-                            .isActive(user.isActive())
-                            .phones(user.getPhones())
+                            .phones(phoneToPhoneDTO(user.getPhones()))
                             .build())
                     .build()
-                    ,HttpStatus.OK
+                    , HttpStatus.OK
             );
         } catch (DataException dataException) {
             return new ResponseEntity<>(
@@ -192,19 +204,30 @@ public class UserController {
 
     @GetMapping(value = "users",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> showAll(){
+    public ResponseEntity<?> showAll() {
         try {
             List<User> users = userService.findAll();
 
             if (users == null) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("No users found")
-                        .object(new User())
+                        .object(null)
                         .build()
                         , HttpStatus.NOT_FOUND);
             } else {
+                List<UserDTO> userDTOS = new ArrayList<>();
+                for (User user : users) {
+                    userDTOS.add(UserDTO.builder()
+                            .id(user.getId())
+                            .name(user.getName())
+                            .email(user.getEmail())
+                            .password(user.getPassword())
+                            .phones(phoneToPhoneDTO(user.getPhones()))
+                            .build());
+                }
+
                 return new ResponseEntity<>(MessageResponse.builder()
-                        .object(users)
+                        .object(userDTOS)
                         .build()
                         , HttpStatus.OK);
             }
@@ -219,17 +242,43 @@ public class UserController {
         }
     }
 
-    private boolean isValidEmail(String email){
+    private boolean isValidEmail(String email) {
         String regx = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
         Pattern pattern = Pattern.compile(regx);
         Matcher matcher = pattern.matcher(email);
         return !matcher.matches();
     }
 
-    private boolean isValidPassword(String email){
+    private boolean isValidPassword(String email) {
         String regx = config.getPasswordExpression();
         Pattern pattern = Pattern.compile(regx);
         Matcher matcher = pattern.matcher(email);
         return !matcher.matches();
+    }
+
+    private List<PhoneDTO> phoneToPhoneDTO(List<Phone> phones) {
+        List<PhoneDTO> output = new ArrayList<>();
+
+        for (Phone phone : phones) {
+            output.add(PhoneDTO.builder()
+                    .number(phone.getNumber())
+                    .cityCode(phone.getCityCode())
+                    .countryCode(phone.getCountryCode())
+                    .build());
+        }
+        return output;
+    }
+
+    private List<Phone> phoneDTOToPhone(List<PhoneDTO> phones) {
+        List<Phone> output = new ArrayList<>();
+
+        for (PhoneDTO phone : phones) {
+            output.add(Phone.builder()
+                    .number(phone.getNumber())
+                    .cityCode(phone.getCityCode())
+                    .countryCode(phone.getCountryCode())
+                    .build());
+        }
+        return output;
     }
 }
