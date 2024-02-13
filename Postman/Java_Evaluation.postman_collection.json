@@ -1,0 +1,161 @@
+{
+	"info": {
+		"_postman_id": "b6d666af-36ee-4b0e-8ead-8e75ea8ede69",
+		"name": "Java_Evaluation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17929350"
+	},
+	"item": [
+		{
+			"name": "create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Juan Rodriguez\",\n    \"email\": \"juan@rodriguez.org\",\n    \"password\": \"1234\",\n    \"phones\": [\n        {\n            \"number\": \"1234567\",\n            \"citycode\": \"1\",\n            \"contrycode\": \"57\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n            \"id\": \"a4a9e061-b69c-4ab1-9b34-9e4cfd498bf0\",\n            \"name\": \"Antonio Rodriguez\",\n            \"email\": \"antonio@rodriguez.org\",\n            \"password\": \"1234\",\n            \"created\": \"2024-02-13T12:49:29.627+00:00\",\n            \"modified\": \"2024-02-13T12:49:29.627+00:00\",\n            \"lasLogin\": null,\n            \"token\": null,\n            \"phones\": [\n                {\n                    \"id\": \"c15d1ebb-dbdc-4b27-926e-2aa838b3cf1c\",\n                    \"number\": \"1234567\",\n                    \"cityCode\": null,\n                    \"countryCode\": null,\n                    \"user\": null\n                }\n            ],\n            \"active\": false\n        }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "id",
+						"value": "d2080099-dd86-414e-9940-99dcb6e90222",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/51fdd43e-b450-4af9-ac7f-5015bea5d9ec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"51fdd43e-b450-4af9-ac7f-5015bea5d9ec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "showById",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "fdfvdvvdvdf",
+						"value": "fvdvdfvdfvd",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/api/v1/user/51fdd43e-b450-4af9-ac7f-5015bea5d9ec",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"user",
+						"51fdd43e-b450-4af9-ac7f-5015bea5d9ec"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "showAll",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/v1/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

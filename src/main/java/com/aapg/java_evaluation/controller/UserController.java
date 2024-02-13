@@ -89,16 +89,6 @@ public class UserController {
                         .message("User id parameter is not found")
                         .build()
                         ,HttpStatus.CONFLICT);
-            } if (userService.existsById(userDTO.getId())){
-                return new ResponseEntity<>(MessageResponse.builder()
-                        .message("The user entered already exists")
-                        .build()
-                        ,HttpStatus.CONFLICT);
-            } if (userService.existsByEmail(userDTO.getEmail())){
-                return new ResponseEntity<>(MessageResponse.builder()
-                        .message("The email entered already exists")
-                        .build()
-                        ,HttpStatus.CONFLICT);
             } if (isValidEmail(userDTO.getEmail())) {
                 return new ResponseEntity<>(MessageResponse.builder()
                         .message("The email entered does not meet the necessary parameters")
@@ -140,15 +130,14 @@ public class UserController {
         }
     }
 
-    @DeleteMapping(value = "user/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> delete(@PathVariable UUID id){
+    @DeleteMapping(value = "user/{uuid}",
+    produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> delete(@PathVariable String uuid){
 
         try {
-            User user = userService.findById(id);
+            User user = userService.findById(UUID.fromString(uuid));
             userService.delete(user);
-            return new ResponseEntity<>(user, HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>("User deleted", HttpStatus.OK);
         } catch (DataException dataException) {
             return new ResponseEntity<>(
                     MessageResponse.builder()
@@ -159,16 +148,22 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "user/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> showById(@PathVariable UUID uuid){
-
-        User user = userService.findById(uuid);
-
+    @GetMapping(value = "user/{uuid}" ,
+    produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> showById(@PathVariable String uuid){
         try {
+            User user;
+            if (userService.existsById(UUID.fromString(uuid))) {
+                user = userService.findById(UUID.fromString(uuid));
+            } else {
+                return new ResponseEntity<>(
+                        MessageResponse.builder()
+                                .message("User not found")
+                                .object(null)
+                                .build()
+                        , HttpStatus.NOT_FOUND);
+            }
             return new ResponseEntity<>(MessageResponse.builder()
-                   // .message("")
                     .object(UserDTO.builder()
                             .id(user.getId())
                             .name(user.getName())
